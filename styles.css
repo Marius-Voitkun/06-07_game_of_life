@@ -1,0 +1,16 @@
+#game,
+#game td {
+  border: 1px solid black;
+}
+
+#game {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 200px;
+  height: 200px;
+  margin-top: 2rem;
+}
+
+.live {
+  background: grey;
+}
