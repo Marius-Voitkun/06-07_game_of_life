@@ -1,80 +1,68 @@
-// let count = 1;
-// setInterval(function() {
-//   console.log(++count);
-// }, 1000);
 
-// setTimeout(function() {
-//   console.log('labas');
-// }, 2000);
+let columns = 25;
+let rows = 25;
+let tableWidth = '400px';     // max-width limited to 100vw
+let tableHeight = '400px';    // max-height limited to 100vh
+let timeInterval = 250;
+let currentPattern = [];
+let nextPattern = [];
 
-
-let area = [];
-let area2 = [];
-let columns = 10;
-let rows = 10;
-
-// Creating 2 empty arrays
-for (let y = 0; y <= rows + 1; y++) {
-  area.push([]);
-  for (let x = 0; x <= columns + 1; x++) {
-    area[y].push(' ');
-  }  
+// Creating first array with empty elements (including extra rows and columns)
+for (let y = 0; y <= (rows + 1); y++) {
+  currentPattern.push([]);
+  for (let x = 0; x <= (columns + 1); x++) {
+    currentPattern[y].push(' ');
+  }
 }
 
-console.log(area);
-console.log(area2);
-
-// creating first table
+// Filling the first array with a random pattern
 for (let y = 1; y <= rows; y++) {
   for (let x = 1; x <= columns; x++) {
     if (Math.random() < 0.5)
-      area[y][x] = 'X';
+      currentPattern[y][x] = 'X';
   }
-  console.log(area[y]);
+  // console.log(area[y]);
 }
 
-
-// creating next tables
-let array = area;
+// Creating next patterns at specified time intervals
+let array;
 setInterval(function() {
-  array = newTable();
+  array = createNextPattern();
   buildTable(rows, columns, array);
-}, 1000);
+}, timeInterval);
 
 
-// newTable();
-function newTable () {
-  for (let y = 0; y <= rows + 1; y++) {
-    area2.push([]);
-    for (let x = 0; x <= columns + 1; x++) {
-      area2[y].push(' ');
+function createNextPattern() {
+  for (let y = 0; y <= (rows + 1); y++) {
+    nextPattern.push([]);
+    for (let x = 0; x <= (columns + 1); x++) {
+      nextPattern[y].push(' ');
     }  
   }
   
-  console.log('---------------');
+  // console.log('---------------------------------------');
   let neighbours;
 
   for (y = 1; y <= columns; y++) {
     for (x = 1; x <= rows; x++) {
       neighbours = countNeighbours(x, y);
-      isLive = area[y][x] == 'X' ? true : false;
-      area2[y][x] = getsLiveOrDead(isLive, neighbours) ? 'X' : ' ';
+      isLive = currentPattern[y][x] === 'X' ? true : false;
+      nextPattern[y][x] = getsLiveOrDead(isLive, neighbours) ? 'X' : ' ';
     }
-    console.log(area2[y]);
+    // console.log(nextPattern[y]);
   }
 
-  area = area2;
-  area2 = new Array();
+  currentPattern = nextPattern;
+  nextPattern = new Array();
 
-  return area;
+  return currentPattern;
 }
 
 
 function countNeighbours(x, y) {
-  let neighbourhood = [];
-  neighbourhood = [area[y-1][x-1], area[y-1][x], area[y-1][x+1],
-                       area[y][x-1], area[y][x+1],
-                       area[y+1][x-1], area[y+1][x], area[y+1][x+1] ];
+  let neighbourhood = [currentPattern[y-1][x-1], currentPattern[y-1][x], currentPattern[y-1][x+1],
+                       currentPattern[y][x-1],                           currentPattern[y][x+1],
+                       currentPattern[y+1][x-1], currentPattern[y+1][x], currentPattern[y+1][x+1] ];
   return countOccurences(neighbourhood, 'X');
 }
 
@@ -89,22 +77,14 @@ function countOccurences(array, searchElement) {
 
 
 function getsLiveOrDead(isLive, neighbours) {
-  if (isLive && (neighbours < 2 || neighbours > 3)) {
-    // console.log('test1');
+  if (isLive && (neighbours < 2 || neighbours > 3))
     return false;
-  }
-  if (isLive && (neighbours === 2 || neighbours === 3)) {
-    // console.log('test2');
+  if (isLive && (neighbours === 2 || neighbours === 3))
     return true;
-  }
-  if (!isLive && neighbours === 3) {
-    // console.log('test3');
+  if (!isLive && neighbours === 3)
     return true;
-  }
-  // console.log('test4');
   return false;
 }
-
 
 
 function buildTable(rows, columns, array) {
@@ -120,5 +100,7 @@ function buildTable(rows, columns, array) {
     html += `</tr>`;
   }
 
-  document.getElementById('game').innerHTML = html;
+  let table = document.getElementById('game');
+  table.innerHTML = html;
+  table.style = `width: ${tableWidth}; height: ${tableHeight}`;
 }
