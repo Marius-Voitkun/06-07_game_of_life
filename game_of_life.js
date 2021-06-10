@@ -1,11 +1,12 @@
 
-let columns = 25;
-let rows = 25;
+let columns = 10;
+let rows = 10;
 let tableWidth = '400px';     // max-width limited to 100vw
 let tableHeight = '400px';    // max-height limited to 100vh
 let timeInterval = 250;
 let currentPattern = [];
 let nextPattern = [];
+let patterns = [];
 
 // Creating first array with empty elements (including extra rows and columns)
 for (let y = 0; y <= (rows + 1); y++) {
@@ -24,11 +25,29 @@ for (let y = 1; y <= rows; y++) {
   // console.log(area[y]);
 }
 
+patterns.push(currentPattern);
+
 // Creating next patterns at specified time intervals
-let array;
-setInterval(function() {
-  array = createNextPattern();
-  buildTable(rows, columns, array);
+let pattern;
+let equilibriumReached = false;
+let isOscillating = false;
+
+let runLife = setInterval(function() {
+  pattern = createNextPattern();
+  patterns.push(pattern);
+  buildTable(rows, columns, pattern);
+  
+  if (equilibriumReached === false) {
+    equilibriumReached = isEquilibriumReached(pattern, patterns);
+    if (isOscillating === false) {
+      isOscillating = isPatternOscillating(pattern, patterns);
+    }
+  }
+  
+  console.log('running');
+  if (equilibriumReached === true) {
+    clearInterval(runLife);
+  }
 }, timeInterval);
 
 
@@ -83,6 +102,40 @@ function getsLiveOrDead(isLive, neighbours) {
     return true;
   if (!isLive && neighbours === 3)
     return true;
+  return false;
+}
+
+
+function isEquilibriumReached(currentPattern, patterns) {
+  for (let y = 1; y <= rows; y++) {
+    for (let x = 1; x <= columns; x++) {
+      if (patterns[patterns.length - 2][y][x] !== currentPattern[y][x])
+        return false;
+    }
+  }
+  
+  console.log('Equilibrium reached!');
+  return true;
+}
+
+
+function isPatternOscillating(currentPattern, patterns) {
+  for (let i = 0; i < (patterns.length - 2); i++) {
+    let pattern = patterns[i];
+    let isOscillating = true;
+    for (let y = 1; y <= rows; y++) {
+      for (let x = 1; x <= columns; x++) {
+        if (pattern[y][x] !== currentPattern[y][x]) {
+          isOscillating = false;
+        }
+      }
+    }
+    if (isOscillating === true) {
+      console.log('The pattern is oscilating!');
+      return true;
+    }
+  }
+
   return false;
 }
 
